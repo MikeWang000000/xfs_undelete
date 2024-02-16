@@ -36,6 +36,8 @@ xfs_undelete \- an undelete tool for the XFS filesystem
 .I magicfiles
 ] [
 .B \--no-remount-readonly
+] [
+.B \-L
 ]
 .I device
 .br
@@ -96,6 +98,10 @@ As the source filesystem isn't remounted read-only when you specify this option,
 .TP
 \fB\-l\fR
 Shows a list of filetypes suitable for use with the \fB-r\fR, \fB-i\fR, and \fB-z\fR options, along with common name as put by the \fBfile\fR utility.
+.TP
+\fB\-L\fR
+Use long filenames. \fIXfs_undelete\fR creates short filenames by default, which is \fB(ctime)%Y%m%d-%H%M%S_inode.ext\fR. Long filenames contain more information about the deleted files. The format is \fB(ctime)%Y%m%d-%H%M%S.nanosecs_(mtime)%Y%m%d-%H%M%S.nanosecs_(atime)%Y%m%d-%H%M%S.nanosecs_UID$GID_inode.ext\fR.
+
 .SH FILETYPES
 The \fIfiletypes\fR as used with the \fB-r\fR, \fB-i\fR, and \fB-z\fR options are a \fBcomma\fR-separated list of patterns. Patterns of the form */* are matched against known mimetypes, all others are matched against known file extensions. The file extensions are guessed from the file contents with the help of the \fBfile\fR utility, so they don't neccessarily are the same the file had before deletion.
 

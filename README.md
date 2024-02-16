@@ -69,7 +69,8 @@ xfs\_undelete - an undelete tool for the XFS filesystem
 **-r** *filetypes* \] \[ **-i** *filetypes* \] \[ **-x** *inodes* \] \[
 **-S** *size* \] \[ **-z** *filetypes* \] \[ **-o** *output\_directory*
 \] \[ **-s** *start\_inode* \] \[ **-m** *magicfiles* \] \[
-**--no-remount-readonly** \] *device*  
+**--no-remount-readonly** \] \[
+**-L** \] *device*  
 **xfs\_undelete -l** \[ **-m** *magicfiles* \]
 
 # DESCRIPTION
@@ -194,6 +195,12 @@ It **must** reside on a different filesystem.
 **-l**  
 Shows a list of filetypes suitable for use with the **-r**, **-i**, and
 **-z** options, along with common name as put by the **file** utility.
+
+**-L**  
+Use long filenames. Xfs_undelete creates short filenames by default, which is
+**(ctime)%Y%m%d-%H%M%S_inode.ext**. Long filenames contain more information about
+the deleted files. The format is
+**(ctime)%Y%m%d-%H%M%S.nanosecs_(mtime)%Y%m%d-%H%M%S.nanosecs_(atime)%Y%m%d-%H%M%S.nanosecs_UID$GID_inode.ext**.
 
 # FILETYPES
 

@@ -232,9 +232,19 @@ proc investigateInodeBlock {ag block} {
 		## Skip if not the magic string of an unused/deleted inode.
 		if {[string range $data $boffset $boffset+3] ne "IN\0\0"} continue
 
-		## Get ctime and mtime.
-		binary scan [string range $data $boffset+48 $boffset+51] Iu ctime
+		## Get UID and GID
+		binary scan [string range $data $boffset+8 $boffset+11] Iu uid
+		binary scan [string range $data $boffset+12 $boffset+15] Iu gid
+
+		## Get atime, mtime and ctime.
+		binary scan [string range $data $boffset+32 $boffset+35] Iu atime
+		binary scan [string range $data $boffset+36 $boffset+39] Iu atimens
+
 		binary scan [string range $data $boffset+40 $boffset+43] Iu mtime
+		binary scan [string range $data $boffset+44 $boffset+47] Iu mtimens
+
+		binary scan [string range $data $boffset+48 $boffset+51] Iu ctime
+		binary scan [string range $data $boffset+52 $boffset+55] Iu ctimens
 
 		## Ignore files deleted outside of the given time range.
 		if {$ctime<[lindex $::ctimes 0] || $ctime>[lindex $::ctimes 1]} continue
@@ -243,7 +253,15 @@ proc investigateInodeBlock {ag block} {
 		if {$mtime<[lindex $::mtimes 0] || $mtime>[lindex $::mtimes 1]} continue
 
 		## Get output filename.
-		set of [file join [dict get $::parameters o] [format "%s_%s" [clock format $ctime -format "%Y-%m-%d-%H-%M"] $inode]]
+		set ownstr [format "%s$%s" $uid $gid]
+		set atimestr [format "%s.%09d" [clock format $atime -format "%Y%m%d-%H%M%S"] $atimens]
+		set mtimestr [format "%s.%09d" [clock format $mtime -format "%Y%m%d-%H%M%S"] $mtimens]
+		set ctimestr [format "%s.%09d" [clock format $ctime -format "%Y%m%d-%H%M%S"] $ctimens]
+		if {[dict get $::parameters L]} {
+			set of [file join [dict get $::parameters o] [format "%s_%s_%s_%s_%s" $ctimestr $mtimestr $atimestr $ownstr $inode]]
+		} else {
+			set of [file join [dict get $::parameters o] [format "%s_%s" $ctimestr $inode]]
+		}
 
 		## Make a dict of any extents found.
 		set extents [dict create]
@@ -451,6 +469,7 @@ if {[catch {set parameters [cmdline::getoptions argv {
 	{m.arg ""              "magic path passed to the 'file' utility"}
 	{l                     "list file extensions understood"}
 	{no-remount-readonly   "do not remount read-only before recovery"}
+	{L                     "use long filenames"}
 } {[options] device -- options are:}]} result]} {
 	puts stderr $result
 	exit 127
